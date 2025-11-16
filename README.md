@@ -1,4 +1,4 @@
-# LendingClub Loan Default Prediction: Turning Consumer Credit Data Into Actionable Risk Intelligence
+# Loan Default Prediction: Turning Consumer Credit Data Into Actionable Risk Intelligence
 
 ## Executive Summary
 Lending decisions depend on accurately assessing borrower risk. Despite having rich loan-level and borrower-level data, traditional underwriting processes often rely on static credit metrics that fail to capture complex behavioral patterns.
@@ -43,7 +43,6 @@ Prepared dataset for Logistic Regression, Random Forest, and Gradient Boosting /
 
 # Key Visual Insights
 
-(Upload the images into /images folder in your repo to make them display.)
 
 ## FICO Score Distribution
 ![FICO Score](images/fico_score.png)
