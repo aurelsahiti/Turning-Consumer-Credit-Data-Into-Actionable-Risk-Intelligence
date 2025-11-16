@@ -105,4 +105,5 @@ This project enables:
 
 # Author
 Aurel Sahiti  
-Data Science Graduate | Machine Learning & Consumer Credit Risk Analytics
+Data Science Graduate | Machine Learning & Consumer Credit Risk Analytics  
+[GitHub](https://github.com/aurelsahiti) | [LinkedIn](https://linkedin.com/in/aurelsahiti)
