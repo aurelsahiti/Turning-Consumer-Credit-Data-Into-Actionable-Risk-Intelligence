@@ -1,108 +1,135 @@
-# Loan Default Prediction: Turning Consumer Credit Data Into Actionable Risk Intelligence
+# Turning Consumer Credit Data Into Actionable Risk Intelligence
 
 ## Executive Summary
-Lending decisions depend on accurately assessing borrower risk. Despite having rich loan-level and borrower-level data, traditional underwriting processes often rely on static credit metrics that fail to capture complex behavioral patterns.
+Consumer lending depends on accurately assessing borrower risk before funding a loan. LendingClub provides rich historical data on borrower profiles, loan terms, and repayment outcomes, but turning this raw data into reliable credit-risk predictions requires a structured machine learning pipeline.
 
-In this project, I designed a complete data analytics and risk modeling pipeline using Python, Pandas, NumPy, and Scikit-Learn to analyze LendingClub’s historical loan dataset. My workflow transforms raw loan records into structured insights, visual risk indicators, and model-ready features.
+In this project, I built an end-to-end credit risk modeling workflow that:
+- Cleans and engineers LendingClub loan data  
+- Explores and visualizes key risk drivers (FICO score, income, DTI, interest rate, term, etc.)  
+- Trains and compares multiple machine learning models  
+- Selects a regularized logistic regression model as the final, production-ready classifier
 
-The analysis reveals clear relationships between creditworthiness, financial stability, and the likelihood of loan charge-off—information that directly strengthens underwriting and portfolio management strategies.
+Using cross-validated AUROC as the main metric, I compared logistic regression (SGD), random forest, k-nearest neighbors (with LDA), and SVM, and evaluated their performance on a held-out test set of the most recent loans.
+
+The final model provides a data-driven estimate of the probability that a loan will charge off, using only information available at listing time—supporting better underwriting and investor decision-making.
 
 ## Business Problem
-Lending institutions face three major challenges:
+Lenders and marketplace platforms face three central questions:
 
-1. Identifying high-risk borrowers early  
-2. Understanding which borrower attributes drive repayment behavior  
-3. Building scalable, data-driven credit-risk models  
+1. Which borrowers are most likely to default (charge off)?  
+2. Which features (credit variables, loan features, income metrics) are most predictive of default?  
+3. Can we build a scalable, interpretable model that scores new loans in real time?
 
-This project uncovers the variables most predictive of loan default and prepares the dataset for machine-learning models to enhance credit decisions.
+This project aims to:
+- Transform historic LendingClub data into a model-ready credit-risk dataset  
+- Identify top risk drivers across borrower and loan characteristics  
+- Build and evaluate machine learning models to predict charge-off probability  
 
 ## Methodology
 
 ### 1. Data Preparation
-- Cleaned 350k+ loan records  
-- Treated missing values  
-- Applied log transforms to skewed variables  
-- Encoded categorical features  
-- Constructed charge-off target variable  
+- Loaded historical LendingClub loan data (CSV)  
+- Cleaned missing values and dropped high-missingness fields  
+- Log-transformed skewed variables (income, revolving balance)  
+- Encoded categorical variables  
+- Constructed binary target: 0 = Fully Paid, 1 = Charged Off  
 
 ### 2. Exploratory Data Analysis (EDA)
-Generated visualizations to understand borrower behavior, credit health, and repayment patterns.
+Explored borrower behavior, loan structure, and financial stability using:
+- FICO score  
+- Annual income (log)  
+- Debt-to-income ratio  
+- Earliest credit line year  
+- Grade/subgrade  
+- Loan amount, interest rate, term  
+- Employment length, home ownership  
+- Public bankruptcies  
 
-### 3. Feature Engineering
-- Log-scaled income & revolving balance  
-- Extracted credit age  
-- Created binary flags for categorical fields  
-- Removed high-missingness features  
-
-### 4. Modeling (Next Step)
-Prepared dataset for Logistic Regression, Random Forest, and Gradient Boosting / XGBoost using metrics such as:
-
-- AUC-ROC  
-- Precision/Recall  
-- Confusion Matrix  
-
-# Key Visual Insights
-
-
-## FICO Score Distribution
-![FICO Score](images/fico_score.png)
-
-## Log Annual Income
-![Log Annual Income](images/log_annual_income.png)
-
-## Income by Loan Status
-![Income by Loan Status](images/log_annual_income_by_loan_status.png)
-
-## Interest Rate by Loan Status
-![Interest Rate by Status](images/interest_rate_by_loan_status.png)
-
-## Installment Amount by Loan Status
-![Installment by Status](images/installment_by_loan_status.png)
-
-## Subgrade Risk Curve
-![Subgrade Charge Off](images/charge_off_rate_by_subgrade.png)
-
-## Home Ownership & Risk
-![Home Ownership Risk](images/charge_off_rate_by_home_ownership.png)
-
-## Revolving Credit Behavior
-![Revolving Credit Balance](images/log_revolving_credit_balance_by_loan_status.png)
-
-# Summary of Insights
-The strongest predictors of loan default include:
-
+### 3. Feature Selection
+Strongest predictors:
+- Interest rate  
+- Term  
+- FICO score  
+- Debt-to-income ratio  
 - Subgrade  
-- FICO Score  
-- Revolving Balance  
-- Public Bankruptcies  
-- Installment Amount  
-- Interest Rate  
-- Home Ownership  
-- Verification Status  
-- Credit History Length  
+- Revolving balance  
+- Income  
 
-# Business Impact
+Low-signal features:
+- Certain states  
+- Rare loan purposes  
+
+### 4. Machine Learning Pipeline
+All models implemented using scikit-learn Pipelines including:
+- Mean imputation  
+- Optional LDA reduction  
+- StandardScaler  
+- Estimator (SGD Logistic Regression, Random Forest, kNN, SVM)
+
+Models evaluated with 5-fold cross-validation and AUROC scoring.
+Final evaluation performed on a **time-based held-out test set**.
+
+## Models Trained & Results
+
+### Cross-Validated AUROC
+- Logistic Regression (SGD): **0.7249**  
+- Random Forest: **0.7254**  
+- kNN (with LDA): **0.6693**  
+
+### Test AUROC (Most Recent Loans)
+- Logistic Regression (SGD): **0.7247**  
+- Random Forest: **0.7265**  
+- kNN: **0.6728**  
+- SVM: **0.6345**  
+
+Random Forest slightly outperformed Logistic Regression but Logistic was selected as the final model due to:
+- Lower complexity  
+- Faster training  
+- High interpretability  
+- Nearly identical AUROC  
+
+### Final Logistic Regression – Test Classification Report
+Class 0 (Fully Paid):  
+- Precision: 0.83  
+- Recall: 0.98  
+- F1: 0.90  
+
+Class 1 (Charged Off):  
+- Precision: 0.53  
+- Recall: 0.09  
+- F1: 0.16  
+
+Overall Accuracy: **0.82**  
+Weighted F1: **0.76**  
+
+## Key Insights
+- Interest rate, term, FICO, DTI, and subgrade are the strongest predictors  
+- Lower-income and higher revolving balance borrowers default more frequently  
+- Subgrade provides a strong risk-tier hierarchy  
+- AUROC ≈ 0.72 reflects real-world difficulty in credit risk separation  
+
+## Business Impact
 This project enables:
+- Better lending decisions using predicted risk  
+- Ability to reprice risky loans  
+- Improved overall portfolio performance  
+- More informed investor guidance  
 
-- Better credit-risk scoring  
-- Risk-adjusted interest pricing  
-- More efficient underwriting  
-- Lower default rates  
-- Stronger loan portfolio health  
+## Next Steps
+1. Cost-sensitive optimization  
+2. Threshold tuning for better recall of default class  
+3. Class-weighting or SMOTE  
+4. Gradient boosting (XGBoost/LightGBM)  
+5. Deploy scoring API (FastAPI or Lambda)  
+6. Streamlit dashboard for real-time scoring  
 
-# Next Steps
-1. Train ML models (LR, RF, XGBoost)  
-2. Add SHAP explainability  
-3. Deploy scoring API (FastAPI or AWS Lambda)  
-4. Build Streamlit dashboard  
-5. Add financial cost-sensitive evaluation  
-
-# Tools & Technologies
-- Python, Pandas, NumPy, Scikit-Learn  
+## Tools & Technologies
+- Python, Pandas, NumPy, SciPy  
+- Scikit-Learn  
 - Matplotlib, Seaborn  
 - Jupyter Notebook
 
-# Author
+## Author
 Aurel Sahiti  
 Data Science Graduate | Machine Learning & Consumer Credit Risk Analytics  
 [GitHub](https://github.com/aurelsahiti) | [LinkedIn](https://linkedin.com/in/aurelsahiti)
